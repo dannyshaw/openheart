@@ -1,0 +1,22 @@
+# HEARTBEAT.md — Example
+
+This file is your heartbeat prompt. OpenHeart reads it and passes it to Claude
+as a system prompt on each scheduled run.
+
+Write whatever you want Claude to do on each heartbeat. Some ideas:
+
+## Check for unread emails
+- Scan inbox for anything urgent
+- Summarise important messages
+
+## Review calendar
+- What's coming up in the next 24 hours?
+- Any conflicts or prep needed?
+
+## Memory maintenance
+- Review recent conversations for important context
+- Update memory files with anything worth keeping
+
+## Rules
+- If nothing needs attention: reply `HEARTBEAT_OK`
+- Keep output concise — this runs unattended

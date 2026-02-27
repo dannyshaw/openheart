@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openheart"
+version = "0.1.0"
+description = "Heartbeat scheduler for Claude Code — runs claude -p on a cron schedule with your HEARTBEAT.md as the prompt."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = ["typer>=0.9"]
+
+[project.scripts]
+openheart = "openheart.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["openheart*"]
