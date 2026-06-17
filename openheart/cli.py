@@ -15,7 +15,7 @@ from typing import Optional
 import typer
 
 from openheart import settings
-from openheart.runner import LOG_DIR, run_heartbeat
+from openheart.runner import LOG_DIR, cost_summary, run_heartbeat
 
 app = typer.Typer(help="OpenHeart — Claude Code heartbeat scheduler.")
 
@@ -46,7 +46,7 @@ def run(
     ctx: typer.Context,
     heartbeat: Path = typer.Option(Path("HEARTBEAT.md"), help="Path to heartbeat file."),
     model: str = typer.Option("sonnet", help="Claude model."),
-    budget: float = typer.Option(0.50, help="Max USD per run."),
+    budget: float = typer.Option(0.50, help="Max USD per run (0 = no cap; cost is logged either way)."),
     dir: Path = typer.Option(Path("."), help="Project directory to run in."),
     allowed_tools: Optional[str] = typer.Option(None, help="Comma-separated tool whitelist."),
     quiet_start: int = typer.Option(23, help="Quiet hours start (24h)."),
@@ -86,7 +86,7 @@ def install(
     dir: Path = typer.Option(Path("."), help="Project directory."),
     heartbeat: Path = typer.Option(Path("HEARTBEAT.md"), help="Path to heartbeat file."),
     model: str = typer.Option("sonnet", help="Claude model."),
-    budget: float = typer.Option(0.50, help="Max USD per run."),
+    budget: float = typer.Option(0.50, help="Max USD per run (0 = no cap; cost is logged either way)."),
     method: str = typer.Option(
         "auto",
         help="Scheduler: 'auto' (LaunchAgent on macOS, cron elsewhere), 'launchd', or 'cron'.",
@@ -215,6 +215,14 @@ def status() -> None:
             typer.echo(f"  {k}: {v}{marker}")
     else:
         typer.echo("  (no settings file — using defaults)")
+
+    # Cost (from the ledger)
+    costs = cost_summary()
+    typer.echo("")
+    typer.echo(
+        f"Cost: ${costs['today_usd']:.2f} today ({costs['today_runs']} runs), "
+        f"${costs['total_usd']:.2f} all-time ({costs['total_runs']} runs)"
+    )
 
     # Check scheduler
     typer.echo("")

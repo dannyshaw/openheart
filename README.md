@@ -58,7 +58,7 @@ Run a single heartbeat.
 |------|---------|-------------|
 | `--heartbeat` | `HEARTBEAT.md` | Path to heartbeat file |
 | `--model` | `sonnet` | Claude model to use |
-| `--budget` | `0.50` | Max USD spend per run |
+| `--budget` | `0.50` | Max USD spend per run (`0` = no cap; cost is logged either way) |
 | `--dir` | `.` | Project directory (Claude runs here) |
 | `--allowed-tools` | — | Comma-separated tool whitelist |
 | `--quiet-start` | `23` | Quiet hours start (24h) |
@@ -150,9 +150,24 @@ wake-ups no-op. Force cron instead with `openheart install --method cron`.
 
 All logs go to `~/.openheart/logs/`, keeping your project repo clean:
 
-- `YYYY-MM-DD.log` — timestamped entries from each run
+- `YYYY-MM-DD.log` — timestamped entries from each run (header includes `cost=$...`)
 - `cron.log` — stdout/stderr from cron (Linux)
 - `launchd.log` — stdout/stderr from the LaunchAgent (macOS)
+- `costs.jsonl` — one line per run with `cost_usd`, `model`, `exit`, `duration_ms`, `num_turns` (see [Cost](#cost))
+
+## Cost
+
+Each run is invoked with `--output-format json`, so OpenHeart records the real
+`total_cost_usd` claude reports. Rather than capping spend (a hard `--budget`
+guillotines a run mid-task), the default posture is: **don't cap, but log**.
+
+- Set `budget` to `0` to remove the cap entirely; keep a positive value to keep a
+  hard ceiling. Either way the cost is recorded.
+- Per-run cost lands in the daily log header and in `~/.openheart/logs/costs.jsonl`.
+- `openheart status` shows today's and all-time spend and run counts.
+
+A run still has a 10-minute wall-clock timeout as a backstop against a runaway
+loop, independent of the budget.
 
 ## Writing a HEARTBEAT.md
 
